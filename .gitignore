@@ -1,0 +1,40 @@
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# === Fichiers générés par le programme ===
+modele.lp
+solution.txt
+_tmp_analyse_*.py
+
+# === Fichiers GLPK binaires (Windows) ===
+glpsol.exe
+glpk_4_65.dll
+
+# === Fichiers de rapport PDF (optionnel - décommenter si non voulu) ===
+# Rapport_Projet_Capteur.pdf
+
+# === Fichiers de tests lourds (optionnel) ===
+# maxi_test_1.txt
+
+# === IDE / Éditeurs ===
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# === OS ===
+.DS_Store
+Thumbs.db
+desktop.ini

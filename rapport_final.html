@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rapport — Problème d'activation de capteurs</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    /* ---- PRINT SETUP ---- */
+    @page {
+      size: A4;
+      margin: 14mm 16mm;
+    }
+
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+      }
+
+      .no-print {
+        display: none !important;
+      }
+
+      .page {
+        box-shadow: none !important;
+        margin: 0 !important;
+      }
+
+      .page-break {
+        break-after: page;
+      }
+
+      * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+
+    /* ---- GLOBAL ---- */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #e2e8f0;
+      color: #1e293b;
+      font-size: 9.5pt;
+      line-height: 1.45;
+    }
+
+    /* ---- PAGE ---- */
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      background: white;
+      margin: 10mm auto;
+      padding: 14mm 16mm;
+      box-shadow: 0 4px 32px rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* ---- HEADER ---- */
+    .header {
+      background: linear-gradient(135deg, #1e1b4b 0%, #1e3a5f 100%);
+      color: white;
+      border-radius: 6px;
+      padding: 10px 16px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-left h1 {
+      font-size: 13pt;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .header-left p {
+      font-size: 7.5pt;
+      color: #94a3b8;
+      margin-top: 1px;
+    }
+
+    .header-right {
+      text-align: right;
+      font-size: 7.5pt;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #818cf8;
+      color: white;
+      font-size: 7pt;
+      font-weight: 600;
+      padding: 1px 7px;
+      border-radius: 10px;
+      margin-bottom: 3px;
+    }
+
+    /* ---- SECTION ---- */
+    .section-title {
+      font-size: 9pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #4f46e5;
+      border-bottom: 2px solid #4f46e5;
+      padding-bottom: 2px;
+      margin-bottom: 5px;
+      margin-top: 8px;
+    }
+
+    /* ---- DEUX COLONNES ---- */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    /* ---- CARD ---- */
+    .card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 5px;
+      padding: 7px 10px;
+    }
+
+    .card-title {
+      font-size: 8pt;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* ---- ALGO STEPS ---- */
+    .steps {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .step {
+      display: flex;
+      gap: 6px;
+      align-items: flex-start;
+      font-size: 8.5pt;
+    }
+
+    .step-num {
+      background: #4f46e5;
+      color: white;
+      font-size: 7pt;
+      font-weight: 700;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-text strong {
+      color: #1e293b;
+    }
+
+    .step-text {
+      color: #475569;
+      line-height: 1.4;
+    }
+
+    /* ---- FORMULE LP ---- */
+    .lp-box {
+      background: #f1f5f9;
+      border-left: 3px solid #4f46e5;
+      border-radius: 0 4px 4px 0;
+      padding: 6px 10px;
+      font-family: 'Courier New', monospace;
+      font-size: 8pt;
+      line-height: 1.7;
+      color: #1e293b;
+    }
+
+    .lp-box .lp-keyword {
+      color: #4f46e5;
+      font-weight: 700;
+    }
+
+    .lp-box .lp-comment {
+      color: #94a3b8;
+    }
+
+    /* ---- TABLE ---- */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8pt;
+    }
+
+    thead tr {
+      background: #1e1b4b;
+      color: white;
+    }
+
+    thead th {
+      padding: 4px 7px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 7.5pt;
+      letter-spacing: 0.03em;
+    }
+
+    thead th:first-child {
+      text-align: left;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    tbody tr:hover {
+      background: #eef2ff;
+    }
+
+    tbody td {
+      padding: 3.5px 7px;
+      text-align: center;
+      color: #374151;
+    }
+
+    tbody td:first-child {
+      text-align: left;
+      font-weight: 500;
+      color: #1e293b;
+      font-family: monospace;
+      font-size: 8pt;
+    }
+
+    .opt-badge {
+      display: inline-block;
+      background: #d1fae5;
+      color: #065f46;
+      font-size: 7pt;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 8px;
+    }
+
+    /* ---- CHART ---- */
+    .chart-wrap {
+      position: relative;
+      height: 120px;
+      margin-top: 4px;
+    }
+
+    /* ---- CONCLUSIONS ---- */
+    .conclusions {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .concl {
+      display: flex;
+      gap: 6px;
+      align-items: flex-start;
+      font-size: 8.5pt;
+      color: #374151;
+    }
+
+    .concl-icon {
+      color: #4f46e5;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* ---- MODELE MATH ---- */
+    .math-box {
+      background: #fefce8;
+      border: 1px solid #fde68a;
+      border-radius: 5px;
+      padding: 6px 10px;
+      font-size: 8pt;
+      font-family: 'Courier New', monospace;
+      line-height: 1.8;
+    }
+
+    /* ---- DIVIDER ---- */
+    .divider {
+      border: none;
+      border-top: 1px dashed #cbd5e1;
+      margin: 7px 0;
+    }
+
+    /* ---- FOOTER ---- */
+    .footer {
+      margin-top: auto;
+      padding-top: 6px;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      font-size: 7pt;
+      color: #94a3b8;
+    }
+
+    /* ---- HIGHLIGHT BOX ---- */
+    .highlight {
+      background: linear-gradient(135deg, #eef2ff, #f0fdf4);
+      border: 1px solid #c7d2fe;
+      border-radius: 5px;
+      padding: 6px 10px;
+      font-size: 8.5pt;
+      color: #374151;
+    }
+
+    .page-label {
+      text-align: center;
+      font-size: 7.5pt;
+      color: #94a3b8;
+      margin: 4mm auto;
+      font-style: italic;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ==================== PAGE 1 (RECTO) ==================== -->
+  <div class="page">
+
+    <!-- EN-TÊTE -->
+    <div class="header">
+      <div class="header-left">
+        <div class="badge">IUT Nord Franche-Comté · 2025-2026</div>
+        <h1>Problème d'activation de capteurs pour surveillance de zones</h1>
+        <p>Techniques d'optimisation · Karine Deschinkel</p>
+        <p>Groupe · Taskin Semih - Aslan Semih</p>
+
+      </div>
+      <div class="header-right">
+        Langage : Python 3.x<br>
+        Solveur : GLPK 4.65 (glpsol)<br>
+        Heuristique : Aléatoire + Nettoyage
+      </div>
+    </div>
+
+    <!-- PARTIE 3 : HEURISTIQUE -->
+    <div class="section-title">Partie 3 — Construction des configurations élémentaires &amp; Programme Linéaire</div>
+
+    <div class="two-col">
+      <!-- COL 1 : ALGO -->
+      <div>
+        <div class="card">
+          <div class="card-title">Heuristique de génération (10 000 itérations)</div>
+          <ul class="steps">
+            <li class="step">
+              <span class="step-num">1</span>
+              <span class="step-text"><strong>Construction aléatoire :</strong> mélanger aléatoirement les N capteurs,
+                les ajouter un par un jusqu'à couvrir l'intégralité des M zones (stratégie gloutonne aléatoire).</span>
+            </li>
+            <li class="step">
+              <span class="step-num">2</span>
+              <span class="step-text"><strong>Phase de nettoyage (minimalité) :</strong> parcourir chaque capteur de la
+                configuration ; si sa suppression ne détruit pas la couverture totale, le retirer définitivement.
+                Répéter jusqu'à stabilité → configuration <em>minimale</em>.</span>
+            </li>
+            <li class="step">
+              <span class="step-num">3</span>
+              <span class="step-text"><strong>Stockage :</strong> ajouter la configuration nettoyée (représentée comme
+                un <code>frozenset</code>) à l'ensemble global. Les doublons sont automatiquement ignorés.</span>
+            </li>
+            <li class="step">
+              <span class="step-num">4</span>
+              <span class="step-text"><strong>Résultat :</strong> K configurations élémentaires uniques, toutes
+                minimales (aucun capteur superflu).</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="highlight" style="margin-top:6px;">
+          <strong>Propriété clé :</strong> la phase de nettoyage garantit que chaque configuration est
+          <em>élémentaire</em> — retirer n'importe quel capteur laisse au moins une zone non couverte.
+          Cela réduit le nombre de variables du LP et améliore la qualité de la solution.
+        </div>
+      </div>
+
+      <!-- COL 2 : LP -->
+      <div>
+        <div class="card">
+          <div class="card-title">Programme Linéaire (format CPLEX LP)</div>
+          <div class="lp-box">
+            <span class="lp-comment">\ K configs C₁..Cₖ, N capteurs</span>
+            <span class="lp-keyword">Maximize</span>
+            obj: t₁ + t₂ + ... + tₖ
+
+            <span class="lp-keyword">Subject To</span>
+            <span class="lp-comment">\ Pour chaque capteur i :</span>
+            c_i: Σ <sub>k: i∈Cₖ</sub> tₖ ≤ batterie_i
+
+            <span class="lp-keyword">Bounds</span>
+            0 ≤ tₖ pour tout k = 1..K
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:6px;">
+          <div class="card-title">Interprétation</div>
+          <ul class="steps">
+            <li class="step">
+              <span class="step-num">↗</span>
+              <span class="step-text"><strong>Objectif :</strong> maximiser la somme des temps d'activation = durée de
+                vie totale du réseau.</span>
+            </li>
+            <li class="step">
+              <span class="step-num">⚡</span>
+              <span class="step-text"><strong>Contrainte énergie :</strong> un capteur ne peut être actif plus longtemps
+                que sa batterie, toutes configurations confondues.</span>
+            </li>
+            <li class="step">
+              <span class="step-num">✓</span>
+              <span class="step-text"><strong>Résolution :</strong> <code>glpsol --lp modele.lp -o solution.txt</code>
+                via la méthode du simplexe (variables continues).</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- VALIDATION SUR L'EXEMPLE DU SUJET -->
+    <div class="section-title">Validation — Exemple du sujet (N=4, M=3)</div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Données</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Capteur</th>
+              <th>Zones</th>
+              <th>Batterie</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>s₁</td>
+              <td>z₁, z₂</td>
+              <td>6</td>
+            </tr>
+            <tr>
+              <td>s₂</td>
+              <td>z₂, z₃</td>
+              <td>3</td>
+            </tr>
+            <tr>
+              <td>s₃</td>
+              <td>z₃</td>
+              <td>2</td>
+            </tr>
+            <tr>
+              <td>s₄</td>
+              <td>z₁, z₃</td>
+              <td>6</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-title">Solution obtenue (4 configs élémentaires)</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Config</th>
+              <th>Capteurs</th>
+              <th>Durée t*</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>u₁</td>
+              <td>{s₂, s₄}</td>
+              <td>2.5</td>
+            </tr>
+            <tr>
+              <td>u₂</td>
+              <td>{s₁, s₂}</td>
+              <td>0.5</td>
+            </tr>
+            <tr>
+              <td>u₃</td>
+              <td>{s₁, s₃}</td>
+              <td>2.0</td>
+            </tr>
+            <tr>
+              <td>u₄</td>
+              <td>{s₁, s₄}</td>
+              <td>3.5</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="margin-top:4px; font-size:8pt; color:#065f46; font-weight:600;">
+          ✓ Durée de vie = <strong>8.5</strong> unités de temps (conforme à la solution théorique du sujet)
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER PAGE 1 -->
+    <div class="footer">
+      <span>Python 3.x — Bibliothèque standard uniquement — Solveur GLPK 4.65</span>
+      <span>Page 1 / 2 — Recto</span>
+    </div>
+  </div>
+
+  <div class="page-label no-print">↓ Page 2 (Verso) ↓</div>
+
+  <!-- ==================== PAGE 2 (VERSO) ==================== -->
+  <div class="page">
+
+    <!-- EN-TÊTE PAGE 2 -->
+    <div class="header">
+      <div class="header-left">
+        <div class="badge">Parties 4 &amp; 5</div>
+        <h1>Expérimentation &amp; Analyse des résultats</h1>
+        <p>Résultats sur les instances de l'annexe · Influence du nombre de configurations</p>
+      </div>
+      <div class="header-right">
+        10 000 itérations<br>
+        Heuristique aléatoire<br>
+        Simplexe GLPK
+      </div>
+    </div>
+
+    <!-- PARTIE 4 -->
+    <div class="section-title">Partie 4 — Expérimentation sur les instances de l'annexe</div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Instance</th>
+          <th>N (capteurs)</th>
+          <th>M (zones)</th>
+          <th>Configs générées</th>
+          <th>Durée de vie optimale</th>
+          <th>Statut</th>
+          <th>Temps CPU</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>fichier-exemple.txt</td>
+          <td>4</td>
+          <td>3</td>
+          <td>4</td>
+          <td><strong>8.5000</strong></td>
+          <td><span class="opt-badge">OPTIMAL</span></td>
+          <td>0.2 s</td>
+        </tr>
+        <tr>
+          <td>instance_exemple.txt</td>
+          <td>5</td>
+          <td>4</td>
+          <td>4</td>
+          <td><strong>22.0000</strong></td>
+          <td><span class="opt-badge">OPTIMAL</span></td>
+          <td>0.2 s</td>
+        </tr>
+        <tr>
+          <td>moyen_test_3.txt</td>
+          <td>10</td>
+          <td>10</td>
+          <td>19</td>
+          <td><strong>395.0000</strong></td>
+          <td><span class="opt-badge">OPTIMAL</span></td>
+          <td>0.2 s</td>
+        </tr>
+        <tr>
+          <td>moyen_test_2.txt</td>
+          <td>20</td>
+          <td>10</td>
+          <td>237</td>
+          <td><strong>104.0000</strong></td>
+          <td><span class="opt-badge">OPTIMAL</span></td>
+          <td>0.2 s</td>
+        </tr>
+        <tr>
+          <td>gros_test_1.txt</td>
+          <td>100</td>
+          <td>200</td>
+          <td>6 722</td>
+          <td><strong>2 933.6195</strong></td>
+          <td><span class="opt-badge">OPTIMAL</span></td>
+          <td>1.7 s</td>
+        </tr>
+        <tr>
+          <td>maxi_test_1.txt</td>
+          <td>1 000</td>
+          <td>500</td>
+          <td>9 880</td>
+          <td><strong>19 550.2789</strong></td>
+          <td><span class="opt-badge">OPTIMAL</span></td>
+          <td>11.7 s</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="highlight" style="margin-top:6px; font-size:8pt;">
+      <strong>Toutes les instances sont résolues à l'optimal</strong>, y compris la plus grande (N=1 000, M=500, ~9 880
+      configurations).
+      La méthode du simplexe sur des LP continus reste très efficace même à grande échelle.
+    </div>
+
+    <hr class="divider">
+
+    <!-- PARTIE 5 -->
+    <div class="section-title">Partie 5 — Influence du nombre et du type de configurations sur la durée de vie</div>
+
+    <div class="two-col">
+      <!-- GRAPHIQUE -->
+      <div>
+        <div class="card">
+          <div class="card-title">Durée de vie vs. Nombre d'itérations (moyenne de 3 répétitions)</div>
+          <div class="chart-wrap">
+            <canvas id="chartDuree"></canvas>
+          </div>
+        </div>
+        <div class="card" style="margin-top:6px;">
+          <div class="card-title">Configurations uniques générées</div>
+          <div class="chart-wrap">
+            <canvas id="chartConfigs"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLEAU + CONCLUSIONS -->
+      <div>
+        <div class="card">
+          <div class="card-title">Données — instance gros_test_1.txt (N=100, M=200)</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Itérations</th>
+                <th>Configs</th>
+                <th>Durée moy.</th>
+                <th>Durée max</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>10</td>
+                <td>10</td>
+                <td>399.3</td>
+                <td>519.0</td>
+              </tr>
+              <tr>
+                <td>50</td>
+                <td>49</td>
+                <td>1 378.7</td>
+                <td>1 498.0</td>
+              </tr>
+              <tr>
+                <td>100</td>
+                <td>98</td>
+                <td>1 850.6</td>
+                <td>1 928.4</td>
+              </tr>
+              <tr>
+                <td>250</td>
+                <td>234</td>
+                <td>2 287.1</td>
+                <td>2 322.6</td>
+              </tr>
+              <tr>
+                <td>500</td>
+                <td>449</td>
+                <td>2 519.2</td>
+                <td>2 541.4</td>
+              </tr>
+              <tr>
+                <td>1 000</td>
+                <td>848</td>
+                <td>2 658.2</td>
+                <td>2 665.0</td>
+              </tr>
+              <tr>
+                <td>2 000</td>
+                <td>1 595</td>
+                <td>2 780.5</td>
+                <td>2 788.9</td>
+              </tr>
+              <tr>
+                <td>5 000</td>
+                <td>3 673</td>
+                <td>2 877.8</td>
+                <td>2 881.3</td>
+              </tr>
+              <tr>
+                <td>10 000</td>
+                <td>6 752</td>
+                <td>2 933.0</td>
+                <td>2 938.7</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top:6px;">
+          <div class="card-title"
+            style="font-size:8pt; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#4f46e5; border-bottom:1px solid #e2e8f0; padding-bottom:2px; margin-bottom:5px;">
+            Analyse &amp; Conclusions</div>
+          <div class="conclusions">
+            <div class="concl">
+              <span class="concl-icon">→</span>
+              <span><strong>Effet de saturation :</strong> le gain marginal diminue avec le nombre d'itérations. Entre
+                10 et 100 iter : <em>+363%</em> de durée de vie. Entre 1 000 et 10 000 : seulement <em>+10%</em>.</span>
+            </div>
+            <div class="concl">
+              <span class="concl-icon">→</span>
+              <span><strong>Petites instances (N ≤ 20) :</strong> l'espace de configurations est petit, l'optimum est
+                atteint dès ~50–100 itérations. Davantage d'itérations n'apporte aucun gain.</span>
+            </div>
+            <div class="concl">
+              <span class="concl-icon">→</span>
+              <span><strong>Grandes instances (N ≥ 100) :</strong> l'espace est immense, les nouvelles configurations
+                apportent un gain régulier. La durée de vie passe de 399 (10 iter) à 2 933 (10 000 iter), soit
+                ×7.3.</span>
+            </div>
+            <div class="concl">
+              <span class="concl-icon">→</span>
+              <span><strong>Robustesse :</strong> dès ~100 itérations sur les instances moyennes, les résultats sont
+                stables entre répétitions (min ≈ max). L'heuristique est fiable.</span>
+            </div>
+            <div class="concl">
+              <span class="concl-icon">→</span>
+              <span><strong>Type des configurations :</strong> la phase de nettoyage (minimalité) est cruciale — elle
+                évite les configs redondantes et réduit la taille du LP, accélérant la résolution sans perte de
+                qualité.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER PAGE 2 -->
+    <div class="footer">
+      <span>Génération : <code>python main.py &lt;instance.txt&gt;</code> · Analyse :
+        <code>python analyse_partie5.py</code></span>
+      <span>Page 2 / 2 — Verso</span>
+    </div>
+  </div>
+
+  <!-- ==================== CHARTS JS ==================== -->
+  <script>
+    const LABELS = [10, 50, 100, 250, 500, 1000, 2000, 5000, 10000];
+
+    const DUREE_DATA = {
+      "fichier-exemple.txt": [8.5, 8.5, 8.5, 8.5, 8.5, 8.5, 8.5, 8.5, 8.5],
+      "moyen_test_3.txt": [287.67, 395.0, 395.0, 395.0, 395.0, 395.0, 395.0, 395.0, 395.0],
+      "moyen_test_2.txt": [65.83, 98.67, 104.0, 104.0, 104.0, 104.0, 104.0, 104.0, 104.0],
+      "gros_test_1.txt": [399.33, 1378.67, 1850.55, 2287.09, 2519.18, 2658.19, 2780.54, 2877.79, 2932.99]
+    };
+
+    const CONFIGS_DATA = {
+      "fichier-exemple.txt": [4, 4, 4, 4, 4, 4, 4, 4, 4],
+      "moyen_test_3.txt": [7, 15, 17, 18, 19, 19, 19, 19, 19],
+      "moyen_test_2.txt": [9, 34, 54, 99, 134, 168, 197, 226, 236],
+      "gros_test_1.txt": [10, 49, 98, 234, 449, 848, 1595, 3673, 6752]
+    };
+
+    const COULEURS = [
+      { b: 'rgba(99,102,241,1)', bg: 'rgba(99,102,241,0.12)' },
+      { b: 'rgba(16,185,129,1)', bg: 'rgba(16,185,129,0.12)' },
+      { b: 'rgba(245,158,11,1)', bg: 'rgba(245,158,11,0.12)' },
+      { b: 'rgba(239,68,68,1)', bg: 'rgba(239,68,68,0.12)' },
+    ];
+
+    const OPTS = (ylabel) => ({
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#64748b', font: { size: 8 }, boxWidth: 10 }, position: 'bottom' },
+        tooltip: { backgroundColor: '#1e293b', titleColor: '#f1f5f9', bodyColor: '#94a3b8' }
+      },
+      scales: {
+        x: { ticks: { color: '#94a3b8', font: { size: 7 } }, grid: { color: '#f1f5f9' } },
+        y: {
+          ticks: { color: '#94a3b8', font: { size: 7 } }, grid: { color: '#f1f5f9' },
+          title: { display: true, text: ylabel, color: '#94a3b8', font: { size: 7 } }
+        }
+      }
+    });
+
+    function buildDatasets(dataObj) {
+      return Object.keys(dataObj).map((k, i) => ({
+        label: k,
+        data: dataObj[k],
+        borderColor: COULEURS[i].b,
+        backgroundColor: COULEURS[i].bg,
+        borderWidth: 1.5,
+        pointRadius: 3,
+        tension: 0.3,
+        fill: false
+      }));
+    }
+
+    new Chart(document.getElementById('chartDuree'), {
+      type: 'line',
+      data: { labels: LABELS, datasets: buildDatasets(DUREE_DATA) },
+      options: OPTS("Durée de vie")
+    });
+
+    new Chart(document.getElementById('chartConfigs'), {
+      type: 'line',
+      data: { labels: LABELS, datasets: buildDatasets(CONFIGS_DATA) },
+      options: OPTS("Configs uniques")
+    });
+  </script>
+</body>
+
+</html>
